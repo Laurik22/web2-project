@@ -1,21 +1,19 @@
-const express = require('express');
+import express from 'express';
+import router from './routes/questions.js';
 
-const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware to parse JSON bodies (will be useful in later steps)
-app.use(express.json());
+// Create an Express application
+const app = express();
+// Middleware to parse JSON bodies
+app.use(express.json())
 
-// Hello World route
-app.get('/', (req, res) => {
-  res.json({ message: 'Hello, World!' });
+// Use the questions router for routes starting with /questions
+app.use("/api/questions", router);
+
+app.use((req, res) => {
+  res.json({msg: "Not found"});
 });
-
-// Health check route
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
