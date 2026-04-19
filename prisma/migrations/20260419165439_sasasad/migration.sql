@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE `question` MODIFY `id` INTEGER NOT NULL AUTO_INCREMENT,
+    MODIFY `question` TEXT NOT NULL,
+    MODIFY `answer` TEXT NOT NULL;

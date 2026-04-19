@@ -1,4 +1,7 @@
-const quizData = [
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
+
+const seedQuizs = [
   {
     "id": 1,
     "question": "Mikä on Suomen pääkaupunki?",
@@ -50,4 +53,25 @@ const quizData = [
     "answer": "1912"
   }
 ];
-export default quizData;
+async function main() {
+  
+  await prisma.question.deleteMany();
+
+  for (const quiz of seedQuizs) {
+    await prisma.question.create({
+      data: {
+        question: quiz.question,
+        answer: quiz.answer,
+      },
+    });
+  }
+
+  console.log("Seed data inserted successfully");
+}
+
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(() => prisma.$disconnect());

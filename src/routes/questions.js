@@ -1,82 +1,90 @@
-import { Router } from 'express';
-import quizData from '../data/questions.js';
+import { Router } from "express";
+import prisma from "../lib/prisma.js";
 
 const router = Router();
 
-//GET all /api/questions
-router.get("/", (req, res) => {
-res.json(quizData)
+// GET /api/questions
+router.get("/", async (req, res) => {
+  try {
+    const questions = await prisma.question.findMany();
+    res.json(questions);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to fetch questions" });
+  }
 });
 
-//GET /api/questions/:qId
-router.get("/:qid", (req, res) => {
+// GET /api/questions/:qid
+router.get("/:qid", async (req, res) => {
+  const qid = Number(req.params.qid);
 
-const qid = Number(req.params.qid);
-const question = quizData.find((q) => q.id === qid);
+  const question = await prisma.question.findUnique({
+    where: { id: qid },
+  });
 
-if(!question){
-    res.status(404).json({msg: "Question not found"})
-}
-res.json(question)
+  if (!question) {
+    return res.status(404).json({ message: "Question not found" });
+  }
+  res.json(question);
 });
 
-//POST 
-router.post("/", (req, res) => {
-const {question, answer} = req.body;
+// POST /api/questions
+router.post("/", async (req, res) => {
+  const { question, answer } = req.body;
 
   if (!question || !answer) {
-    return res.status(400).json({
-      message: "question and answer are required"
-    });
+    return res
+      .status(400)
+      .json({ message: "question and answer are required" });
   }
-  const maxId = Math.max(...quizData.map(q => q.id), 0);
-
-  const newQuestion = {
-    id: quizData.length ? maxId + 1 : 1,
-    question, answer
-  };
-  quizData.push(newQuestion);
+  const newQuestion = await prisma.question.create({
+    data: { question, answer },
+  });
   res.status(201).json(newQuestion);
 });
 
-//PUT 
-router.put("/:qId", (req, res) => {
-const qId = Number(req.params.qId);
+// PUT /api/questions/:qid
+router.put("/:qid", async (req, res) => {
+  const qid = Number(req.params.qid);
   const { question, answer } = req.body;
-
-  const q = quizData.find((p) => p.id === qId);
-
-  if (!q) {
+  const existingQuestion = await prisma.question.findUnique({
+    where: { id: qid },
+  });
+  if (!existingQuestion) {
     return res.status(404).json({ message: "Question not found" });
   }
 
-  if (!question | !answer) {
-    return res.json({
-      message: "question and answer are required"
-    });
+  if (!question || !answer) {
+    return res
+      .status(400)
+      .json({ message: "question and answer are required" });
   }
-  q.question = question;
-  q.answer = answer;
-  res.json(q);
-});
-
-//DELETE
-router.delete("/:qId", (req, res) => {
- const qId = Number(req.params.qId);
-
-  const questionIndex = quizData.findIndex((p) => p.id === qId);
-
-  if (questionIndex === -1) {
-    return res.status(404).json({ message: "Post not found" });
-  }
-
-  const deletedQuestion = quizData.splice(questionIndex, 1);
-
-  res.json({
-    message: "Questiont deleted successfully",
-    question: deletedQuestion[0]
+  const updatedQuestion = await prisma.question.update({
+    where: { id: qid },
+    data: { question, answer },
   });
+  res.json(updatedQuestion);
 });
 
+// DELETE /api/questions/:qid
+router.delete("/:qid", async (req, res) => {
+  const qid = Number(req.params.qid);
+  const question = await prisma.question.findUnique({
+    where: { id: qId },
+  });
+  if (!question) {
+    return res.status(404).json({ message: "Question not found" });
+  }
+
+
+  const deletedQuestion = await prisma.question.delete({
+    where: { id: qid },
+  });
+  res.json({
+    message: "Question deleted successfully",
+    question: deletedQuestion,
+  });
+
+});
 
 export default router;
