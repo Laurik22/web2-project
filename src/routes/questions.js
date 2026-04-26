@@ -1,14 +1,19 @@
 import { Router } from "express";
 import prisma from "../lib/prisma.js";
-
+import isOwner from "../middleware/isOwner.js";
+import authenticate from "../middleware/auth.js";
 const router = Router();
+
+// All routes in this router require authentication
+router.use(authenticate);
 
 // GET /api/questions
 router.get("/", async (req, res) => {
   try {
     const questions = await prisma.question.findMany();
     res.json(questions);
-  } catch (error) {
+  } 
+  catch (error) {
     console.error(error);
     res.status(500).json({ message: "Failed to fetch questions" });
   }
@@ -38,13 +43,13 @@ router.post("/", async (req, res) => {
       .json({ message: "question and answer are required" });
   }
   const newQuestion = await prisma.question.create({
-    data: { question, answer },
+    data: { question, answer, userId: req.user.id },
   });
   res.status(201).json(newQuestion);
 });
 
 // PUT /api/questions/:qid
-router.put("/:qid", async (req, res) => {
+router.put("/:qid", isOwner, async (req, res) => {
   const qid = Number(req.params.qid);
   const { question, answer } = req.body;
   const existingQuestion = await prisma.question.findUnique({
@@ -67,7 +72,7 @@ router.put("/:qid", async (req, res) => {
 });
 
 // DELETE /api/questions/:qid
-router.delete("/:qid", async (req, res) => {
+router.delete("/:qid", isOwner, async (req, res) => {
   const qid = Number(req.params.qid);
   const question = await prisma.question.findUnique({
     where: { id: qId },
@@ -76,7 +81,6 @@ router.delete("/:qid", async (req, res) => {
     return res.status(404).json({ message: "Question not found" });
   }
 
-
   const deletedQuestion = await prisma.question.delete({
     where: { id: qid },
   });
@@ -84,7 +88,6 @@ router.delete("/:qid", async (req, res) => {
     message: "Question deleted successfully",
     question: deletedQuestion,
   });
-
 });
 
 export default router;
