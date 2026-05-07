@@ -2,11 +2,16 @@ import express from 'express';
 import router from './routes/questions.js';
 import prisma from './lib/prisma.js';
 import authRouter from "./routes/auth.js";
+import path from "path";
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const PORT = process.env.PORT || 3000;
-
 // Create an Express application
 const app = express();
+app.use(express.static(path.join(__dirname, "..", "public")));
 // Middleware to parse JSON bodies
 app.use(express.json())
 
