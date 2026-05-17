@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import errorHandler from "./middleware/errorHandler.js";
 import pinoHttp from "pino-http";
 import logger from "./lib/logger.js";
+import { NotFoundError } from "./lib/errors.js";
 
 const app = express();
 app.use(pinoHttp({

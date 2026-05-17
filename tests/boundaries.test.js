@@ -2,6 +2,7 @@ import { resetDb, registerAndLogin, request, app, prisma } from "./helpers.js";
 
 
 beforeEach(resetDb);
+
 it("clamps limit above 100 to 100", async () => {
   const token = await registerAndLogin();
   const res = await request(app).get("/api/questions?limit=999")

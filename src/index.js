@@ -2,6 +2,7 @@
 import app from './app.js';
 import prisma from './lib/prisma.js';
 import logger from "./lib/logger.js";
+import { NotFoundError } from "./lib/errors.js";
 
 const PORT = process.env.PORT || 3000;
 

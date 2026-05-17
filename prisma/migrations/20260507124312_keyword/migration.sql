@@ -5,10 +5,10 @@
 
 */
 -- DropForeignKey
-ALTER TABLE `question` DROP FOREIGN KEY `Question_userId_fkey`;
+ALTER TABLE `Question` DROP FOREIGN KEY `Question_userId_fkey`;
 
 -- DropTable
-DROP TABLE `question`;
+DROP TABLE `Question`;
 
 -- CreateTable
 CREATE TABLE `questions` (
