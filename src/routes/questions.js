@@ -12,13 +12,12 @@ const questionSchema = z.object({
   question: z.string().min(1),
   answer: z.string().min(1),
   keywords: z.union([z.array(z.string()), z.string()]).optional(),
-  createdAt: z.string().date(),
+  createdAt: z.string().date().optional(),
 });
 
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 const router = Router();
 
 const storage = multer.diskStorage({
